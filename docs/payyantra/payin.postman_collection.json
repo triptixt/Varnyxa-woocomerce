@@ -1,0 +1,63 @@
+{
+  "info": {
+    "name": "PayYantra Payin API",
+    "description": "Token, Create Order, and Order Status. UAT host. JWT from Token API is required on all other calls.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Token API",
+      "request": {
+        "method": "POST",
+        "description": "```bash\ncurl --request POST \\\n  --url {{base_url}}/api/auth/token \\\n  --header 'x-client-id: {{client_id}}' \\\n  --header 'x-client-secret: {{client_secret}}'\n```",
+        "header": [
+          { "key": "x-client-id", "value": "{{client_id}}" },
+          { "key": "x-client-secret", "value": "{{client_secret}}" }
+        ],
+        "url": "{{base_url}}/api/auth/token"
+      }
+    },
+    {
+      "name": "Create Order API",
+      "request": {
+        "method": "POST",
+        "description": "Redirect the customer to data.checkoutUrl. Confirm payment from notifyUrl or status APIs, not returnUrl.\n\n```bash\ncurl --request POST \\\n  --url {{base_url}}/api/v2/merchant/orders \\\n  --header 'Content-Type: application/json' \\\n  --header 'Authorization: Bearer {{access_token}}' \\\n  --data '<body>'\n```",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{access_token}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": "{{base_url}}/api/v2/merchant/orders",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"orderId\": \"ORD-MERCHANT-12345\",\n  \"amount\": 100.5,\n  \"currency\": \"INR\",\n  \"customerName\": \"Rahul Sharma\",\n  \"customerEmail\": \"rahul@example.com\",\n  \"customerPhone\": \"9876543210\",\n  \"returnUrl\": \"https://merchant.example.com/payment/return\",\n  \"notifyUrl\": \"https://merchant.example.com/webhooks/payment\",\n  \"referenceId\": \"INV-2026-001\",\n  \"allowedPaymentMethods\": [\"UPI\", \"CARD\", \"NETBANKING\"],\n  \"metadata\": {\n    \"invoiceId\": \"INV-2026-001\",\n    \"productSku\": \"SKU-9988\"\n  }\n}"
+        }
+      }
+    },
+    {
+      "name": "Order Status By Reference ID",
+      "request": {
+        "method": "GET",
+        "description": "```bash\ncurl --request GET \\\n  --url {{base_url}}/api/pay/status/by-reference/{{reference_id}} \\\n  --header 'Authorization: Bearer {{access_token}}'\n```",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": "{{base_url}}/api/pay/status/by-reference/{{reference_id}}"
+      }
+    },
+    {
+      "name": "Order Status By Order ID",
+      "request": {
+        "method": "GET",
+        "description": "```bash\ncurl --request GET \\\n  --url {{base_url}}/api/pay/status/{{order_id}} \\\n  --header 'Authorization: Bearer {{access_token}}'\n```",
+        "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+        "url": "{{base_url}}/api/pay/status/{{order_id}}"
+      }
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "https://payin-api-uat.payyantra.com" },
+    { "key": "client_id", "value": "" },
+    { "key": "client_secret", "value": "" },
+    { "key": "access_token", "value": "" },
+    { "key": "reference_id", "value": "INV-2026-001" },
+    { "key": "order_id", "value": "ORD-1774976229702-3303" }
+  ]
+}

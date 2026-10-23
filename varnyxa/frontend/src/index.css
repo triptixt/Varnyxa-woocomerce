@@ -1,0 +1,340 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  
+  --color-ivory: #FAF9F6;
+  --color-warm-ivory: #F5F3EF;
+  --color-charcoal: #1A1A1A;
+  --color-noir: #121212;
+  --color-bronze: #C5A880;
+  --color-gold: #D4AF37;
+  --color-stone: #E8E6E1;
+}
+
+/* ==========================================================================
+   Multi-Color Theme Tokens (4 Core Themes: Black, White, Light Green, Light Orange)
+   ========================================================================== */
+
+/* 1. White Theme (Default) */
+:root,
+[data-theme="white"],
+[data-theme="classic-ivory"] {
+  --bg-primary: #FFFFFF;
+  --bg-surface: #F9FAFB;
+  --bg-surface-alt: #F3F4F6;
+  --border-color: #E5E7EB;
+  --border-subtle: #F3F4F6;
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6B7280;
+  --accent-primary: #18181B;
+  --accent-hover: #27272A;
+  --accent-contrast: #FFFFFF;
+  --nav-bg: rgba(255, 255, 255, 0.96);
+  --card-bg: #FFFFFF;
+  --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  --input-bg: #F9FAFB;
+  --badge-bg: #F3F4F6;
+  --badge-text: #111827;
+  --slider-track: #E5E7EB;
+  color-scheme: light;
+}
+
+/* 2. Black Theme (Dark Mode) */
+[data-theme="black"],
+[data-theme="midnight-luxe"] {
+  --bg-primary: #0F0F11;
+  --bg-surface: #18181B;
+  --bg-surface-alt: #27272A;
+  --border-color: #3F3F46;
+  --border-subtle: #27272A;
+  --text-primary: #F4F4F5;
+  --text-secondary: #D4D4D8;
+  --text-muted: #A1A1AA;
+  --accent-primary: #D4AF37;
+  --accent-hover: #E5C158;
+  --accent-contrast: #0F0F11;
+  --nav-bg: rgba(15, 15, 17, 0.96);
+  --card-bg: #18181B;
+  --card-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.6);
+  --input-bg: #27272A;
+  --badge-bg: #27272A;
+  --badge-text: #F4F4F5;
+  --slider-track: #3F3F46;
+  color-scheme: dark;
+}
+
+/* 3. Light Green Theme */
+[data-theme="light-green"],
+[data-theme="emerald-edit"] {
+  --bg-primary: #F0FDF4;
+  --bg-surface: #FFFFFF;
+  --bg-surface-alt: #DCFCE7;
+  --border-color: #BBF7D0;
+  --border-subtle: #DCFCE7;
+  --text-primary: #14532D;
+  --text-secondary: #166534;
+  --text-muted: #15803D;
+  --accent-primary: #15803D;
+  --accent-hover: #166534;
+  --accent-contrast: #FFFFFF;
+  --nav-bg: rgba(240, 253, 244, 0.96);
+  --card-bg: #FFFFFF;
+  --card-shadow: 0 4px 20px -2px rgba(20, 83, 45, 0.06);
+  --input-bg: #FFFFFF;
+  --badge-bg: #DCFCE7;
+  --badge-text: #14532D;
+  --slider-track: #BBF7D0;
+  color-scheme: light;
+}
+
+/* 4. Light Orange Theme */
+[data-theme="light-orange"],
+[data-theme="terracotta-earth"],
+[data-theme="rose-atelier"] {
+  --bg-primary: #FFF7ED;
+  --bg-surface: #FFFFFF;
+  --bg-surface-alt: #FFEDD5;
+  --border-color: #FED7AA;
+  --border-subtle: #FFEDD5;
+  --text-primary: #431407;
+  --text-secondary: #7C2D12;
+  --text-muted: #9A3412;
+  --accent-primary: #EA580C;
+  --accent-hover: #C2410C;
+  --accent-contrast: #FFFFFF;
+  --nav-bg: rgba(255, 247, 237, 0.96);
+  --card-bg: #FFFFFF;
+  --card-shadow: 0 4px 20px -2px rgba(67, 20, 7, 0.06);
+  --input-bg: #FFFFFF;
+  --badge-bg: #FFEDD5;
+  --badge-text: #431407;
+  --slider-track: #FED7AA;
+  color-scheme: light;
+}
+
+/* ==========================================================================
+   Base & Typography
+   ========================================================================== */
+
+:root {
+  font-family: var(--font-sans);
+}
+
+:root,
+[data-theme] {
+  --theme-bg: var(--bg-primary);
+  --theme-surface: var(--bg-surface);
+  --theme-surface-alt: var(--bg-surface-alt);
+  --theme-border: var(--border-color);
+  --theme-border-subtle: var(--border-subtle);
+  --theme-text: var(--text-primary);
+  --theme-text-muted: var(--text-muted);
+  --theme-primary: var(--accent-primary);
+  --theme-primary-hover: var(--accent-hover);
+  --theme-primary-contrast: var(--accent-contrast);
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease;
+}
+
+h1, h2, h3, .font-serif {
+  font-family: var(--font-serif);
+}
+
+/* Theme utility tokens */
+.theme-bg { background-color: var(--bg-primary); }
+.theme-surface { background-color: var(--bg-surface); }
+.theme-surface-alt { background-color: var(--bg-surface-alt); }
+.theme-border { border-color: var(--border-color); }
+.theme-border-subtle { border-color: var(--border-subtle); }
+.theme-text { color: var(--text-primary); }
+.theme-text-secondary { color: var(--text-secondary); }
+.theme-text-muted { color: var(--text-muted); }
+.theme-accent { color: var(--accent-primary); }
+.theme-accent-bg { background-color: var(--accent-primary); color: var(--accent-contrast); }
+.theme-card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  box-shadow: var(--card-shadow);
+}
+.theme-nav {
+  background-color: var(--nav-bg);
+  border-color: var(--border-color);
+}
+.theme-input {
+  background-color: var(--input-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Unique Micro-Animations & Keyframes
+   ========================================================================== */
+
+@keyframes pageEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes heartPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes slideDownFade {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-page-enter {
+  animation: pageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-card-enter {
+  animation: cardEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.animate-heart-pop {
+  animation: heartPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.animate-popover {
+  animation: slideDownFade 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Skeleton loader with elegant luxury shimmer */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--bg-surface-alt);
+}
+.skeleton-shimmer::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.25) 30%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.25) 70%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.6s infinite;
+  content: '';
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+/* Mobile & Touch Optimizations */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}
+
+/* Prevent auto-zoom on input focus in iOS Safari */
+@media screen and (max-width: 767px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Safe Area Inset Support */
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+}
+.pt-safe {
+  padding-top: max(0.5rem, env(safe-area-inset-top, 0.5rem));
+}
+.bottom-safe {
+  bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Hide scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Respect user's reduced motion settings */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

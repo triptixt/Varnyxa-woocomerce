@@ -1,0 +1,108 @@
+/**
+ * VARNYXA PayYantra Admin Settings Styles
+ */
+
+.varnyxa-admin-wrap {
+    background: #FFFFFF;
+    border: 1px solid #E5E5EA;
+    border-radius: 12px;
+    padding: 25px 30px;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    max-width: 900px;
+}
+
+.varnyxa-admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #F2F2F7;
+}
+
+.varnyxa-logo-title h2 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: #1C1C1E;
+}
+
+.varnyxa-logo-title .gold-text {
+    color: #B89758;
+}
+
+.varnyxa-logo-title .tagline {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #8E8E93;
+    margin: 4px 0 0 0;
+}
+
+.varnyxa-status-badges {
+    display: flex;
+    gap: 8px;
+}
+
+.v-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.badge-uat {
+    background: #FFF3CD;
+    color: #856404;
+    border: 1px solid #FFEEBA;
+}
+
+.badge-live {
+    background: #D4EDDA;
+    color: #155724;
+    border: 1px solid #C3E6CB;
+}
+
+.badge-configured {
+    background: #D1E7DD;
+    color: #0F5132;
+    border: 1px solid #BADBCC;
+}
+
+.badge-missing {
+    background: #F8D7DA;
+    color: #842029;
+    border: 1px solid #F5C2C7;
+}
+
+.varnyxa-diagnostics-box {
+    margin-top: 30px;
+    padding: 20px;
+    background: #F9F9FB;
+    border-left: 4px solid #B89758;
+    border-radius: 6px;
+}
+
+.varnyxa-diagnostics-box h3 {
+    margin-top: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1C1C1E;
+}
+
+.varnyxa-diagnostics-box code {
+    display: block;
+    padding: 10px 14px;
+    background: #FFFFFF;
+    border: 1px solid #E5E5EA;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #0071E3;
+    word-break: break-all;
+    margin-top: 8px;
+}

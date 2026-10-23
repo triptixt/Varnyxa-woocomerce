@@ -1,0 +1,310 @@
+openapi: 3.0.3
+info:
+  title: PayYantra Payin API
+  version: '2024-01-01'
+  description: |
+    Payment Gateway APIs — Token, Create Order, and Order Status.
+    Token uses x-client-id / x-client-secret. Other calls use Authorization Bearer JWT (24h).
+    Redirect customers to data.checkoutUrl. Confirm payment from notifyUrl or status APIs, not returnUrl.
+servers:
+  - url: https://payin-api-uat.payyantra.com
+    description: UAT
+  - url: https://payin-api.payyantra.com
+    description: Production
+tags:
+  - name: Auth
+  - name: Orders
+  - name: Order Status
+paths:
+  /api/auth/token:
+    post:
+      tags: [Auth]
+      summary: Token API
+      operationId: createPayinToken
+      description: Authenticate and receive a Bearer JWT. No request body. Token expires in 24 hours.
+      parameters:
+        - in: header
+          name: x-client-id
+          required: true
+          schema: { type: string }
+        - in: header
+          name: x-client-secret
+          required: true
+          schema: { type: string }
+        - in: header
+          name: x-api-version
+          required: false
+          schema: { type: string, default: '2024-01-01' }
+      x-codeSamples:
+        - lang: cURL
+          source: |
+            curl --request POST \
+              --url https://payin-api-uat.payyantra.com/api/auth/token \
+              --header 'x-client-id: YOUR_CLIENT_ID' \
+              --header 'x-client-secret: YOUR_CLIENT_SECRET'
+      responses:
+        '200':
+          description: Token generated
+          content:
+            application/json:
+              example:
+                data:
+                  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  merchant:
+                    merchant_id: 8d7cd35e-ec8c-42be-9df0-af725468dc82
+                    name: Demo Merchant Store
+                    status: ACTIVE
+                message: Token generation successful
+        '401':
+          description: Invalid credentials
+  /api/v2/merchant/orders:
+    post:
+      tags: [Orders]
+      summary: Create Order API
+      operationId: createPayinOrder
+      description: Create a payment and receive checkoutUrl. Test amounts ≤ 10. Unpaid orders expire in about 20 minutes.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+            example:
+              orderId: ORD-MERCHANT-12345
+              amount: 100.5
+              currency: INR
+              customerName: Rahul Sharma
+              customerEmail: rahul@example.com
+              customerPhone: '9876543210'
+              returnUrl: https://merchant.example.com/payment/return
+              notifyUrl: https://merchant.example.com/webhooks/payment
+              referenceId: INV-2026-001
+              allowedPaymentMethods: [UPI, CARD, NETBANKING]
+              metadata:
+                invoiceId: INV-2026-001
+                productSku: SKU-9988
+      x-codeSamples:
+        - lang: cURL
+          source: |
+            curl --request POST \
+              --url https://payin-api-uat.payyantra.com/api/v2/merchant/orders \
+              --header 'Content-Type: application/json' \
+              --header 'Authorization: Bearer <access_token>' \
+              --data '{"orderId":"ORD-MERCHANT-12345","amount":100.5,"currency":"INR","customerName":"Rahul Sharma","customerEmail":"rahul@example.com","customerPhone":"9876543210","returnUrl":"https://merchant.example.com/payment/return","notifyUrl":"https://merchant.example.com/webhooks/payment","referenceId":"INV-2026-001","allowedPaymentMethods":["UPI","CARD","NETBANKING"]}'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrderResponse'
+              example:
+                statusCode: 201
+                data:
+                  orderId: PYOR...
+                  transactionId: PYTR...
+                  transactionPublicId: 3f2a9c1e-0000-0000-0000-000000000000
+                  checkoutUrl: https://<pg-host>/api/public/pay/checkout/v3/<transactionPublicId>?access_token=<token>
+                  status: INITIATED
+                  amount: 100.5
+                  currency: INR
+                  merchantOrderId: ORD-MERCHANT-12345
+                  checkoutVersion: v3
+        '400':
+          description: Validation error
+        '401':
+          description: Invalid token
+      callbacks:
+        paymentNotification:
+          '{$request.body#/notifyUrl}':
+            post:
+              summary: Payment webhook (notifyUrl)
+              description: |
+                POSTed when the payment reaches a terminal state.
+                orderId is the merchant orderId from Create Order, not platform data.orderId.
+                txnId maps to data.transactionId. Fulfill only when status / terminalStatus is SUCCESS.
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/WebhookPayload'
+                    example:
+                      orderId: ORD-MERCHANT-17845
+                      referenceId: INV-2026-001
+                      amount: 1
+                      currency: INR
+                      status: SUCCESS
+                      terminalStatus: SUCCESS
+                      txnId: TXN-PYTR-prod-20260145-003070
+                      rrn: '66136709799'
+                      errorCode: null
+                      errorMessage: null
+                      psp_payment_information:
+                        arn: null
+                        utr: '66136709799'
+                        rrn: '66136709799'
+                        bank_reference: null
+                        gateway_payment_id: null
+                      payment_details:
+                        udf1: null
+                        udf2: baXXXXXXXXXX67@okicici
+                      timestamp: '2026-09-04T12:45:30.099Z'
+              responses:
+                '200':
+                  description: Merchant acknowledged the webhook
+  /api/pay/status/by-reference/{referenceId}:
+    get:
+      tags: [Order Status]
+      summary: Order status by reference ID
+      operationId: getOrderStatusByReference
+      description: Look up status using the merchant referenceId supplied at order creation. Poll until SUCCESS or FAILED.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: referenceId
+          required: true
+          schema: { type: string }
+      x-codeSamples:
+        - lang: cURL
+          source: |
+            curl --request GET \
+              --url 'https://payin-api-uat.payyantra.com/api/pay/status/by-reference/INV-2026-001' \
+              --header 'Authorization: Bearer <access_token>'
+      responses:
+        '200':
+          description: Order status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderStatusResponse'
+              example:
+                data:
+                  status: SUCCESS
+                  transactionPublicId: 74ab4e73-0eb0-4433-8d43-e3a881151b8a
+                  orderId: ORD-1774976229702-3303
+                  referenceId: INV-2026-001
+                  amount: '1.00'
+                  currency: INR
+                  rrn: null
+        '401':
+          description: Invalid token
+        '404':
+          description: Order not found
+  /api/pay/status/{orderId}:
+    get:
+      tags: [Order Status]
+      summary: Order status by order ID
+      operationId: getOrderStatusById
+      description: Look up status using PayYantra orderId from Create Order.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema: { type: string }
+      x-codeSamples:
+        - lang: cURL
+          source: |
+            curl --request GET \
+              --url 'https://payin-api-uat.payyantra.com/api/pay/status/ORD-1774976229702-3303' \
+              --header 'Authorization: Bearer <access_token>'
+      responses:
+        '200':
+          description: Order status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderStatusResponse'
+        '401':
+          description: Invalid token
+        '404':
+          description: Order not found
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    CreateOrderRequest:
+      type: object
+      required: [orderId, amount, currency, customerName, customerEmail, customerPhone, returnUrl, notifyUrl]
+      properties:
+        orderId: { type: string, description: Unique merchant order ID for every order }
+        amount: { type: number, exclusiveMinimum: 0, multipleOf: 0.01, description: Must be > 0 with max 2 decimals. Test ≤ 10 }
+        currency: { type: string, example: INR }
+        customerName: { type: string }
+        customerEmail: { type: string }
+        customerPhone: { type: string }
+        returnUrl: { type: string, format: uri, description: Browser redirect — UX only, not confirmation }
+        notifyUrl: { type: string, format: uri, description: HTTPS webhook — source of truth }
+        referenceId: { type: string, maxLength: 50 }
+        allowedPaymentMethods:
+          type: array
+          items: { type: string, enum: [UPI, CARD, NETBANKING] }
+        metadata: { type: object, additionalProperties: true, description: Not returned in Create Order response }
+    CreateOrderResponse:
+      type: object
+      properties:
+        statusCode: { type: integer, example: 201 }
+        data:
+          type: object
+          properties:
+            orderId: { type: string }
+            transactionId: { type: string }
+            transactionPublicId: { type: string, format: uuid }
+            referenceId: { type: string }
+            checkoutUrl: { type: string, description: Redirect the customer here — do not construct }
+            orderAccessToken: { type: string }
+            status: { type: string, example: INITIATED }
+            amount: { type: number }
+            currency: { type: string }
+            totalPayable: { type: number }
+            merchantOrderId: { type: string }
+            returnUrl: { type: string }
+            checkoutVersion: { type: string, example: v3 }
+            deferredPspSelection: { type: boolean }
+    OrderStatusResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            status: { type: string, enum: [SUCCESS, PENDING, FAILED] }
+            transactionPublicId: { type: string }
+            orderId: { type: string }
+            referenceId: { type: string }
+            pspOrderId: { type: string, nullable: true }
+            amount: { type: string }
+            currency: { type: string }
+            rrn: { type: string, nullable: true }
+    WebhookPayload:
+      type: object
+      required: [orderId, amount, currency, status, terminalStatus, txnId, timestamp]
+      properties:
+        orderId: { type: string, description: Merchant orderId from Create Order — not platform data.orderId }
+        referenceId: { type: string, description: Echoed when supplied at Create Order }
+        amount: { type: number }
+        currency: { type: string, example: INR }
+        status: { type: string, description: SUCCESS or FAILED }
+        terminalStatus: { type: string, description: Terminal state — fulfill only on SUCCESS }
+        txnId: { type: string, description: Maps to data.transactionId from Create Order }
+        rrn: { type: string, nullable: true }
+        errorCode: { type: string, nullable: true, description: Null on success }
+        errorMessage: { type: string, nullable: true, description: Null on success }
+        psp_payment_information:
+          type: object
+          properties:
+            arn: { type: string, nullable: true }
+            utr: { type: string, nullable: true }
+            rrn: { type: string, nullable: true }
+            bank_reference: { type: string, nullable: true }
+            gateway_payment_id: { type: string, nullable: true }
+        payment_details:
+          type: object
+          properties:
+            udf1: { type: string, nullable: true }
+            udf2: { type: string, nullable: true, description: Masked UPI VPA on UPI payments }
+        timestamp: { type: string, format: date-time }
